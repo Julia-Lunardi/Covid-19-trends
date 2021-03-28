@@ -1,0 +1,74 @@
+---
+title: "Covid-19 trends"
+author: "Julia Lunardi"
+date: "3/20/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Investigating Covid-19 trends
+
+This is a project focused on exploring and deriving insights from the Covid-19 
+dataset provided by kaggle. I intend, specifically, to analyze the geographical
+distribution of cases, and the least ratio of deaths by positive cases. 
+
+1. Loading packages
+```{r}
+library(tidyverse)
+```
+
+2. Reading in the data
+```{r}
+covid_df<- read_csv(file.choose())
+
+```
+
+3. First look at the data
+```{r}
+glimpse(covid_df)
+```
+
+```{r}
+dim(covid_df)
+```
+
+
+```{r}
+vector_cols <- colnames(covid_df)
+
+vector_cols
+```
+
+
+```{r}
+head(covid_df)
+```
+
+Province_state is "All states" when there's no state/province data. Since the goal
+is to analyze country-level data, an approach is to filter province_state and take
+only the values "All states".
+
+4. Extracting only country-level data
+
+```{r}
+covid_df_all_states <- covid_df %>%
+    filter(Province_State == "All States") %>%
+    covid_df[-5]
+```
+
+
+5. Working with daily data: filtering out cumulative data
+
+```{r}
+covid_df_all_states_daily <- covid_df_all_states %>%
+    select(Date, Country_Region, active, hospitalizedCurr, daily_tested, daily_positive)
+```
+
+
+6. Extracting top ten cases countries data
+
+
+
