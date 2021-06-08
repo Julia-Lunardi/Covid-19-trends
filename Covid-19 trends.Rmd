@@ -15,6 +15,8 @@ This is a project focused on exploring and deriving insights from the Covid-19
 dataset provided by kaggle. I intend, specifically, to analyze the geographical
 distribution of cases, and the least ratio of deaths by positive cases. 
 
+Research question: Which countries have had the highest number of positive cases against the number of tests?
+
 1. Loading packages
 ```{r}
 library(tidyverse)
@@ -55,8 +57,14 @@ only the values "All states".
 
 ```{r}
 covid_df_all_states <- covid_df %>%
-    filter(Province_State == "All States") %>%
-    covid_df[-5]
+    filter(Province_State == "All States")
+
+covid_df <- covid_df[-5]
+
+```
+
+```{r}
+covid_df_all_states
 ```
 
 
@@ -65,10 +73,134 @@ covid_df_all_states <- covid_df %>%
 ```{r}
 covid_df_all_states_daily <- covid_df_all_states %>%
     select(Date, Country_Region, active, hospitalizedCurr, daily_tested, daily_positive)
+
+covid_df_all_states_daily
 ```
 
 
 6. Extracting top ten cases countries data
+
+```{r}
+covid_df_all_states_daily_sum <- covid_df_all_states_daily %>%
+  group_by(Country_Region) %>%
+  summarize( 
+    tested = sum(daily_tested),
+    positive = sum(daily_positive),
+    active = sum(active),
+    hospitalized = sum(hospitalizedCurr)
+    ) %>%
+  arrange(-tested)
+
+covid_df_all_states_daily_sum
+```
+
+
+```{r}
+covid_top_10 <- head(covid_df_all_states_daily_sum, 10)
+
+covid_top_10
+```
+
+
+
+7. Which countries have had the highest number of positive cases against the number of tests?
+
+```{r}
+countries <- covid_top_10$Country_Region
+
+tested_cases <- covid_top_10$tested
+
+positive_cases <- covid_top_10$positive
+
+active_cases <- covid_top_10$active
+
+hospitalized_cases <- covid_top_10$hospitalized
+
+```
+
+
+
+```{r}
+names(tested_cases) <- countries
+
+names(positive_cases) <- countries
+
+names(active_cases) <- countries
+
+names(hospitalized_cases) <- countries
+
+
+```
+
+
+```{r}
+positive_tested_top_3 <- positive_cases/tested_cases
+
+sort(positive_tested_top_3, decreasing = TRUE)
+```
+
+
+8.  Keep all the information available for the top three countries that have had the highest number of positive cases against the number of tests.
+
+```{r}
+united_kingdom <- c(0.11, 1473672, 166909, 0, 0)
+
+united_states <- c(0.10, 17282363, 1877179, 0, 0)
+
+turkey <- c(0.08, 2031192, 163941, 2980960, 0)
+```
+
+
+
+```{r}
+covid_mat <- rbind(united_kingdom, united_states, turkey)
+
+colnames(covid_mat) <- c("Ratio", "tested", "positive", "active", "hospitalized")
+
+covid_mat
+
+```
+
+
+9. Put all our answers and datasets together
+
+```{r}
+question <- "Which countries have had the highest number of positive cases against the number of tests?"
+
+answer <- c("Positive tested cases" = positive_tested_top_3)
+```
+
+
+
+```{r}
+dataframes <- list(covid_df, covid_df_all_states, covid_df_all_states_daily, covid_top_10)
+
+matrix <- list(covid_mat)
+
+vectors <- list(vector_cols, countries)
+```
+
+```{r}
+data_structure_list <- list(dataframes, matrix, vectors)
+
+names(data_structure_list) <- c("dataframes", "matrix", "vectors")
+
+data_structure_list
+
+```
+
+
+```{r}
+covid_analysis_list <- list(question, answer, data_structure_list)
+
+covid_analysis_list[[2]]
+```
+
+
+
+Based on these results, we can see that the countries with top positive/tested ratio within
+the analyzed period were United States, United Kingdom, and Turkey. Furthermore, the United States, Russia and Italy
+have cumulatively the largest amount of positive cases.s
 
 
 
